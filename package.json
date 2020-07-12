@@ -1,0 +1,25 @@
+{
+  "name": "codeslap",
+  "version": "0.1.0",
+  "description": "Electron app that lets you write text to your terminal in a mini editor",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "Jesse Duffield",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": ">=2.0.8",
+    "electron-rebuild": "^1.11.0"
+  },
+  "dependencies": {
+    "bluebird": "^3.7.2",
+    "codemirror": "^5.55.0",
+    "file-system": "^2.2.2",
+    "glob": "^7.1.6",
+    "glob-promise": "^3.4.0",
+    "node-fetch": "^2.6.0",
+    "require": "^2.4.20",
+    "robotjs": "https://github.com/Kyusung4698/robotjs.git"
+  }
+}

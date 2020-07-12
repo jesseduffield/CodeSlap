@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>CodeCopy</title>
+    <link rel="stylesheet" href="./css/master.css">
+    <link rel="stylesheet" href="./css/codemirror.css">
+    <link rel="stylesheet" href="./css/themes/monokai.css">
+    <link rel="stylesheet" href="./css/show-hint.css">
+  </head>
+  <body>
+    <img id="settingsButton" class="cog" src="./svg/cog.svg" />
+    <div id="settings">
+      <div class="controls">
+        <input id="stripCheckbox" type="checkbox" />
+        <label for="stripCheckbox">strip whitespace before period when pasting</label>
+      </div>
+      <div class="footer">
+        <p><a href="https://github.com/jesseduffield/CodeSlap" target="_blank">CodeSlap</a>,
+          created by Jesse Duffield</p>
+        <a href="https://jesseduffield.com" target="_blank">My Blog</a>
+        <br>
+        <a href="https://github.com/sponsors/jesseduffield" target="_blank">Sponsor
+          Me</a>
+      </div>
+    </div>
+    <script>
+      require('./renderer.js')
+    </script>
+  </body>
+</html>
