@@ -12,20 +12,34 @@
     <img id="settingsButton" class="cog" src="./svg/cog.svg" />
     <div id="settings">
       <div class="controls">
-        <input id="stripCheckbox" type="checkbox" />
-        <label for="stripCheckbox">strip whitespace before period when pasting</label>
+        <div>
+          <div>
+            <label for="stripCheckbox">strip whitespace before period when
+              pasting</label>
+            <input id="stripCheckbox" type="checkbox" />
+          </div>
+          <div>
+            <label for="frequentWordsGlob">Glob for hints and autocomplete</label>
+            <input id="frequentWordsGlob" type="text"
+              placeholder="/Users/Me/myRepo/**/*.rb" />
+            <button id="syncButton">Sync</button>
+            <p id="wordsSynced">0 words synced</p>
+            <div id="syncLoader" />
+            </div>
+          </div>
+        </div>
+        <div class="footer">
+          <p><a href="https://github.com/jesseduffield/CodeSlap"
+              target="_blank">CodeSlap</a>,
+            created by Jesse Duffield</p>
+          <a href="https://jesseduffield.com" target="_blank">My Blog</a>
+          <br>
+          <a href="https://github.com/sponsors/jesseduffield" target="_blank">Sponsor
+            Me</a>
+        </div>
       </div>
-      <div class="footer">
-        <p><a href="https://github.com/jesseduffield/CodeSlap" target="_blank">CodeSlap</a>,
-          created by Jesse Duffield</p>
-        <a href="https://jesseduffield.com" target="_blank">My Blog</a>
-        <br>
-        <a href="https://github.com/sponsors/jesseduffield" target="_blank">Sponsor
-          Me</a>
-      </div>
-    </div>
-    <script>
+      <script>
       require('./renderer.js')
     </script>
-  </body>
-</html>
+    </body>
+  </html>

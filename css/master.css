@@ -14,6 +14,12 @@ label {
   font-color: white;
 }
 
+input {
+  color: black;
+  height: 20px;
+  width: 400px;
+}
+
 .cog {
   position: absolute;
   bottom: 10px;
@@ -45,4 +51,28 @@ label {
   background: #565656;
   box-sizing: border-box;
   line-height: 1.5;
+}
+
+#frequentWordsGlob.syncing {
+  color: grey;
+}
+
+#syncLoader {
+  display: none;
+}
+
+#syncLoader.syncing {
+  display: block;
+  border: 2px solid #565656;
+  border-top: 2px solid #cacaca;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
 }

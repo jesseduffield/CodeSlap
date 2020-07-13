@@ -6,24 +6,29 @@ const { promisify } = require('util');
 const readFileAsync = promisify(fs.readFile);
 const writeFileAsync = promisify(fs.writeFile);
 
-const dir = INSERT_HERE;
+const minimumFrequency = 10;
+const minimumLength = 7;
 
-const run = async () => {
+const extractFrequentWords = async globStr => {
   const wordFrequencies = {};
 
-  const filenames = await glob(`${dir}/**/*.rb`, {});
+  const filenames = await glob(globStr, {});
 
   const wordsInFiles = await Promise.all(
     filenames.map(async filename => {
       const fileContent = await readFileAsync(filename, 'utf8');
 
-      return fileContent.match(/\w+/g);
+      return fileContent.match(/\w+/g) || [];
     })
   );
 
-  wordsInFiles.slice(0, 100).forEach(wordArray => {
+  wordsInFiles.forEach(wordArray => {
     wordArray.forEach(word => {
-      if (word.length < 7) {
+      if (word.length < minimumLength) {
+        return;
+      }
+      if (/^\d+$/.test(word)) {
+        // ignoring numbers
         return;
       }
       if (word in wordFrequencies) {
@@ -35,7 +40,7 @@ const run = async () => {
   });
 
   const wordsOrderedByFrequency = Object.entries(wordFrequencies)
-    .filter(([key, value]) => value > 1)
+    .filter(([key, value]) => value > minimumFrequency)
     .sort(([key1, value1], [key2, value2]) => {
       if (value1 !== value2) {
         return value1 < value2;
@@ -44,9 +49,9 @@ const run = async () => {
     })
     .map(([key, _]) => key);
 
-  // console.log(JSON.stringify(wordsOrderedByFrequency, null, 4));
-
   await writeFileAsync('./words.json', JSON.stringify(wordsOrderedByFrequency));
+
+  return wordsOrderedByFrequency;
 };
 
-run();
+module.exports = extractFrequentWords;

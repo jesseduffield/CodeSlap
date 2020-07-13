@@ -2,7 +2,8 @@ const { ipcRenderer } = require('electron');
 const robot = require('robotjs');
 const CodeMirror = require('codemirror');
 const History = require('./history');
-const allWords = require('./words');
+let allWords = require('./words.json');
+const extractFrequentWords = require('./extractFrequentWords');
 
 require('codemirror/keymap/sublime');
 require('codemirror/mode/ruby/ruby');
@@ -58,7 +59,9 @@ editor.on('change', function() {
     return;
   }
 
-  const list = allWords.filter(word => word.startsWith(currentWord));
+  const list = allWords.filter(
+    word => word.startsWith(currentWord) && word !== currentWord
+  );
 
   if (list.length === 1 && list[0] === currentWord) {
     return;
@@ -79,6 +82,10 @@ editor.on('change', function() {
 const settings = document.getElementById('settings');
 const settingsButton = document.getElementById('settingsButton');
 const codeMirrorWrapper = document.getElementsByClassName('CodeMirror')[0];
+const syncButton = document.getElementById('syncButton');
+const frequentWordsGlob = document.getElementById('frequentWordsGlob');
+const syncLoader = document.getElementById('syncLoader');
+const wordsSynced = document.getElementById('wordsSynced');
 
 settingsButton.addEventListener('click', event => {
   event.stopPropagation();
@@ -86,3 +93,21 @@ settingsButton.addEventListener('click', event => {
   settings.classList.toggle('settingsShow');
   codeMirrorWrapper.classList.toggle('settingsShow');
 });
+
+const updateWordsSyncedMsg = () => {
+  wordsSynced.innerHTML = `${allWords.length} words synced`;
+};
+
+syncButton.addEventListener('click', async event => {
+  event.stopPropagation();
+
+  syncLoader.classList.add('syncing');
+  frequentWordsGlob.classList.add('syncing');
+  allWords = await extractFrequentWords(frequentWordsGlob.value);
+  frequentWordsGlob.classList.remove('syncing');
+  syncLoader.classList.remove('syncing');
+
+  updateWordsSyncedMsg();
+});
+
+updateWordsSyncedMsg();
