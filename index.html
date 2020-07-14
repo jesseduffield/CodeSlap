@@ -20,26 +20,28 @@
           </div>
           <div>
             <label for="frequentWordsGlob">Glob for hints and autocomplete</label>
-            <input id="frequentWordsGlob" type="text"
-              placeholder="/Users/Me/myRepo/**/*.rb" />
-            <button id="syncButton">Sync</button>
-            <p id="wordsSynced">0 words synced</p>
-            <div id="syncLoader" />
+            <div class="syncContainer">
+              <input id="frequentWordsGlob" type="text"
+                placeholder="/Users/Me/myRepo/**/*.rb" />
+              <button id="syncButton">Sync</button>
+              <div id="syncLoader"></div>
             </div>
           </div>
-        </div>
-        <div class="footer">
-          <p><a href="https://github.com/jesseduffield/CodeSlap"
-              target="_blank">CodeSlap</a>,
-            created by Jesse Duffield</p>
-          <a href="https://jesseduffield.com" target="_blank">My Blog</a>
-          <br>
-          <a href="https://github.com/sponsors/jesseduffield" target="_blank">Sponsor
-            Me</a>
+          <p id="wordsSynced">0 words synced</p>
         </div>
       </div>
-      <script>
+      <div class="footer">
+        <p><a href="https://github.com/jesseduffield/CodeSlap"
+            target="_blank">CodeSlap</a>,
+          created by Jesse Duffield</p>
+        <a href="https://jesseduffield.com" target="_blank">My Blog</a>
+        <br>
+        <a href="https://github.com/sponsors/jesseduffield" target="_blank">Sponsor
+          Me</a>
+      </div>
+    </div>
+    <script>
       require('./renderer.js')
     </script>
-    </body>
-  </html>
+  </body>
+</html>

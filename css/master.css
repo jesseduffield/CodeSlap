@@ -58,10 +58,7 @@ input {
 }
 
 #syncLoader {
-  display: none;
-}
-
-#syncLoader.syncing {
+  visibility: hidden;
   display: block;
   border: 2px solid #565656;
   border-top: 2px solid #cacaca;
@@ -71,8 +68,21 @@ input {
   animation: spin 0.7s linear infinite;
 }
 
+#syncLoader.syncing {
+  visibility: visible;
+}
+
 @keyframes spin {
   100% {
     transform: rotate(360deg);
   }
+}
+
+.syncContainer {
+  display: flex;
+  align-items: center;
+}
+
+.syncContainer > * + * {
+  margin-left: 10px;
 }
