@@ -1,9 +1,11 @@
-const { ipcRenderer } = require('electron');
+const { ipcRenderer, remote } = require('electron');
 const robot = require('robotjs');
 const CodeMirror = require('codemirror');
 const History = require('./history');
 let allWords = require('./words.json');
 const extractFrequentWords = require('./extractFrequentWords');
+
+const win = remote.getCurrentWindow();
 
 require('codemirror/keymap/sublime');
 require('codemirror/mode/ruby/ruby');
@@ -25,19 +27,30 @@ robot.setKeyboardDelay(0);
 const history = new History();
 
 const submit = () => {
+  const start = new Date().getTime();
+  console.log('entered submit function', new Date().getTime() - start);
   event.preventDefault();
-  ipcRenderer.send('dismiss');
-
   const text = editor.getValue();
-
-  history.push(text);
-
-  editor.setValue('');
-
   normalisedText = text.replace(/\s+\./g, '.');
 
-  robot.typeString(normalisedText);
-  robot.keyTap('enter');
+  history.push(text);
+  editor.setValue('');
+
+  ipcRenderer.send('dismiss');
+  // win.hide();
+  console.log('just dismissed window', new Date().getTime() - start);
+
+  setTimeout(() => {
+    robot.typeString(normalisedText);
+    console.log('just typed string', new Date().getTime() - start);
+    robot.keyTap('enter');
+    console.log('just hit enter', new Date().getTime() - start);
+
+    setTimeout(() => {
+      win.show();
+      console.log('just showed window', new Date().getTime() - start);
+    }, 10);
+  }, 10);
 };
 
 document.addEventListener('keydown', event => {
