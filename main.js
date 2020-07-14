@@ -6,25 +6,13 @@ const {
   shell,
   Menu,
 } = require('electron');
+const createMenu = require('./menu');
 
 let win = null;
 
-// need to use the menu for this. See https://github.com/electron/electron/issues/2640
-const menu = Menu.buildFromTemplate([
-  {
-    label: 'Menu',
-    submenu: [
-      {
-        label: 'Exit',
-        click() {
-          app.quit();
-        },
-      },
-    ],
-  },
-]);
+menu = createMenu();
 Menu.setApplicationMenu(menu);
-// Menu.setApplicationMenu(null);
+// need to use the menu for this. See https://github.com/electron/electron/issues/2640
 const hideWindow = () => Menu.sendActionToFirstResponder('hide:');
 
 let hasFocus = true;
