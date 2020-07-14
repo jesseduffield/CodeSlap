@@ -134,20 +134,18 @@ settingsButton.addEventListener('click', event => {
   codeMirrorWrapper.classList.toggle('settingsShow');
 });
 
-const updateWordsSyncedMsg = () => {
-  wordsSynced.innerHTML = `${allWords.length} words synced`;
+const setStatus = status => {
+  wordsSynced.innerHTML = status;
 };
+
+setStatus(`${allWords.length} words synced`);
 
 syncButton.addEventListener('click', async event => {
   event.stopPropagation();
 
   syncLoader.classList.add('syncing');
   frequentWordsGlob.classList.add('syncing');
-  allWords = await extractFrequentWords(frequentWordsGlob.value);
+  allWords = await extractFrequentWords(frequentWordsGlob.value, setStatus);
   frequentWordsGlob.classList.remove('syncing');
   syncLoader.classList.remove('syncing');
-
-  updateWordsSyncedMsg();
 });
-
-updateWordsSyncedMsg();

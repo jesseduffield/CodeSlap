@@ -9,18 +9,26 @@ const writeFileAsync = promisify(fs.writeFile);
 const minimumFrequency = 10;
 const minimumLength = 7;
 
-const extractFrequentWords = async globStr => {
+const extractFrequentWords = async (globStr, setStatus) => {
+  setStatus('finding files');
+
   const wordFrequencies = {};
 
   const filenames = await glob(globStr, {});
+  setStatus(`${filenames.length} files to process`);
 
   const wordsInFiles = await Promise.all(
-    filenames.map(async filename => {
+    filenames.map(async (filename, index) => {
       const fileContent = await readFileAsync(filename, 'utf8');
 
-      return fileContent.match(/\w+/g) || [];
+      const matches = fileContent.match(/\w+/g) || [];
+
+      setStatus(`${index + 1}/${filenames.length} files processed`);
+      return matches;
     })
   );
+
+  setStatus(`processing results`);
 
   const validWord = word => {
     if (word.length < minimumLength) {
@@ -62,7 +70,10 @@ const extractFrequentWords = async globStr => {
     })
     .map(([key, _]) => key);
 
+  setStatus(`saving result`);
   await writeFileAsync('./words.json', JSON.stringify(wordsOrderedByFrequency));
+
+  setStatus(`${wordsOrderedByFrequency.length} words synced`);
 
   return wordsOrderedByFrequency;
 };
