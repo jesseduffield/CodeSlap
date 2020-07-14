@@ -10,8 +10,21 @@ const {
 let win = null;
 
 // need to use the menu for this. See https://github.com/electron/electron/issues/2640
-const menu = Menu.buildFromTemplate([]);
+const menu = Menu.buildFromTemplate([
+  {
+    label: 'Menu',
+    submenu: [
+      {
+        label: 'Exit',
+        click() {
+          app.quit();
+        },
+      },
+    ],
+  },
+]);
 Menu.setApplicationMenu(menu);
+// Menu.setApplicationMenu(null);
 const hideWindow = () => Menu.sendActionToFirstResponder('hide:');
 
 let hasFocus = true;
@@ -24,6 +37,7 @@ function onAppReady() {
     frame: false,
     webPreferences: {
       nodeIntegration: true,
+      enableRemoteModule: true,
     },
     transparent: true,
   });

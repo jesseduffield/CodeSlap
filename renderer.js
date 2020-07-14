@@ -59,7 +59,7 @@ const moveCursorToEndOfLine = () => {
   });
 };
 
-document.addEventListener('keydown', event => {
+editor.on('keydown', (_, event) => {
   // I prefer using metaKey here but it seems to cause crashes
   if (event.key === 'Enter' && event.shiftKey) {
     submit();
@@ -81,6 +81,9 @@ document.addEventListener('keydown', event => {
     editor.setValue(history.next());
     moveCursorToEndOfLine();
   }
+
+  // this might actually need to return false. Depends on whether we want to stop propagation or not
+  return true;
 });
 
 editor.on('change', function() {
