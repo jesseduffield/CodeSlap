@@ -7,10 +7,13 @@ const extractFrequentWords = require('./extractFrequentWords');
 
 const { Menu } = remote;
 const win = remote.getCurrentWindow();
+const hideWindow = () => Menu.sendActionToFirstResponder('hide:');
 
 require('codemirror/keymap/sublime');
 require('codemirror/mode/ruby/ruby');
 require('codemirror/addon/hint/show-hint');
+
+const singleLineMode = true;
 
 const editor = CodeMirror(document.body, {
   theme: 'monokai',
@@ -19,67 +22,75 @@ const editor = CodeMirror(document.body, {
   mode: 'ruby',
   keyMap: 'sublime',
   indentWithTabs: false,
+  extraKeys: { Enter: !singleLineMode },
 });
 
 editor.focus();
 
 robot.setKeyboardDelay(0);
 
-const menu = Menu.buildFromTemplate([]);
-Menu.setApplicationMenu(menu);
-
 const history = new History();
-
-let textToWrite = '';
-
-win.on('blur', () => {
-  const start = new Date().getTime();
-  if (textToWrite === '') {
-    return;
-  }
-  robot.typeString(textToWrite);
-  textToWrite = '';
-
-  console.log('just typed string', new Date().getTime() - start);
-  robot.keyTap('enter');
-  console.log('just hit enter', new Date().getTime() - start);
-
-  win.show();
-  console.log('just showed window', new Date().getTime() - start);
-});
 
 const submit = () => {
   const start = new Date().getTime();
-  console.log('entered submit function', new Date().getTime() - start);
 
   event.preventDefault();
 
   const text = editor.getValue();
-  textToWrite = text.replace(/\s+\./g, '.');
+  const textToWrite = text.replace(/\s+\./g, '.');
 
   history.push(text);
   editor.setValue('');
 
-  // ipcRenderer.send('dismiss');
-  // win.hide();
-  Menu.sendActionToFirstResponder('hide:');
-  console.log('just dismissed window', new Date().getTime() - start);
+  hideWindow();
+
+  robot.typeString(textToWrite);
+
+  robot.keyTap('enter');
+
+  win.show();
+};
+
+const moveCursorToEndOfLine = () => {
+  const currentLine = editor.getCursor().line;
+  editor.setCursor({
+    line: currentLine,
+    ch: editor.getLine(currentLine).length,
+  });
 };
 
 document.addEventListener('keydown', event => {
   // I prefer using metaKey here but it seems to cause crashes
   if (event.key === 'Enter' && event.shiftKey) {
     submit();
+  } else if (singleLineMode && event.key === 'Enter') {
+    event.stopPropagation();
+    submit();
+  } else if (singleLineMode && event.key === 'ArrowUp') {
+    const line = history.previous();
+    editor.setValue(line);
+    moveCursorToEndOfLine();
+  } else if (singleLineMode && event.key === 'ArrowDown') {
+    const line = history.next();
+    editor.setValue(line);
+    moveCursorToEndOfLine();
   } else if (event.key === 'j' && event.metaKey) {
     editor.setValue(history.previous());
+    moveCursorToEndOfLine();
   } else if (event.key === 'k' && event.metaKey) {
     editor.setValue(history.next());
+    moveCursorToEndOfLine();
   }
 });
 
 editor.on('change', function() {
   const wordRange = editor.findWordAt(editor.getCursor());
   const currentWord = editor.getRange(wordRange.anchor, wordRange.head);
+
+  if (editor.getCursor().ch !== wordRange.to().ch) {
+    // only show hint if you're at the end of the word
+    return;
+  }
 
   if (currentWord.length === 0) {
     return;
