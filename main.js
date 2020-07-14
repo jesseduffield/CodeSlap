@@ -12,6 +12,7 @@ let win = null;
 // need to use the menu for this. See https://github.com/electron/electron/issues/2640
 const menu = Menu.buildFromTemplate([]);
 Menu.setApplicationMenu(menu);
+const hideWindow = () => Menu.sendActionToFirstResponder('hide:');
 
 let hasFocus = true;
 
@@ -24,8 +25,8 @@ function onAppReady() {
     webPreferences: {
       nodeIntegration: true,
     },
+    transparent: true,
   });
-  //  win.loadURL(`file://${__dirname}/index.html`);
   win.loadFile('index.html');
   win.once('closed', () => {
     win = null;
@@ -42,13 +43,10 @@ function onAppReady() {
 
     win.webContents.setZoomFactor(1);
     if (hasFocus) {
-      win.hide();
+      hideWindow();
     } else {
       win.show();
     }
-  });
-  ipcMain.on('dismiss', () => {
-    app.hide();
   });
   win.webContents.on('new-window', function(e, url) {
     e.preventDefault();
