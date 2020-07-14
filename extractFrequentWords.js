@@ -22,14 +22,27 @@ const extractFrequentWords = async globStr => {
     })
   );
 
+  const validWord = word => {
+    if (word.length < minimumLength) {
+      return false;
+    }
+
+    if (/^\d+$/.test(word)) {
+      // ignoring numbers
+      return false;
+    }
+
+    if (word.startsWith('_')) {
+      return false;
+    }
+
+    return true;
+  };
+
   wordsInFiles.forEach(wordArray => {
     wordArray.forEach(word => {
-      if (word.length < minimumLength) {
-        return;
-      }
-      if (/^\d+$/.test(word)) {
-        // ignoring numbers
-        return;
+      if (!validWord(word)) {
+        return false;
       }
       if (word in wordFrequencies) {
         wordFrequencies[word]++;
