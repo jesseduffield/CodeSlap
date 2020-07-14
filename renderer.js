@@ -5,6 +5,7 @@ const History = require('./history');
 let allWords = require('./words.json');
 const extractFrequentWords = require('./extractFrequentWords');
 
+const { Menu } = remote;
 const win = remote.getCurrentWindow();
 
 require('codemirror/keymap/sublime');
@@ -24,33 +25,45 @@ editor.focus();
 
 robot.setKeyboardDelay(0);
 
+const menu = Menu.buildFromTemplate([]);
+Menu.setApplicationMenu(menu);
+
 const history = new History();
+
+let textToWrite = '';
+
+win.on('blur', () => {
+  const start = new Date().getTime();
+  if (textToWrite === '') {
+    return;
+  }
+  robot.typeString(textToWrite);
+  textToWrite = '';
+
+  console.log('just typed string', new Date().getTime() - start);
+  robot.keyTap('enter');
+  console.log('just hit enter', new Date().getTime() - start);
+
+  win.show();
+  console.log('just showed window', new Date().getTime() - start);
+});
 
 const submit = () => {
   const start = new Date().getTime();
   console.log('entered submit function', new Date().getTime() - start);
+
   event.preventDefault();
+
   const text = editor.getValue();
-  normalisedText = text.replace(/\s+\./g, '.');
+  textToWrite = text.replace(/\s+\./g, '.');
 
   history.push(text);
   editor.setValue('');
 
-  ipcRenderer.send('dismiss');
+  // ipcRenderer.send('dismiss');
   // win.hide();
+  Menu.sendActionToFirstResponder('hide:');
   console.log('just dismissed window', new Date().getTime() - start);
-
-  setTimeout(() => {
-    robot.typeString(normalisedText);
-    console.log('just typed string', new Date().getTime() - start);
-    robot.keyTap('enter');
-    console.log('just hit enter', new Date().getTime() - start);
-
-    setTimeout(() => {
-      win.show();
-      console.log('just showed window', new Date().getTime() - start);
-    }, 10);
-  }, 10);
 };
 
 document.addEventListener('keydown', event => {

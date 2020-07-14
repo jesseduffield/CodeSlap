@@ -10,8 +10,10 @@ let win = null;
 
 function onAppReady() {
   win = new BrowserWindow({
-    width: 700,
-    height: 400,
+    width: 1000,
+    height: 700,
+    // width: 700,
+    // height: 400,
     // show: false,
     frame: false,
     webPreferences: {
@@ -23,9 +25,10 @@ function onAppReady() {
   win.once('closed', () => {
     win = null;
   });
-  win.on('blur', () => {
-    win.hide();
-  });
+  // win.on('blur', () => {
+  //   console.log('blurred');
+  //   win.hide();
+  // });
   globalShortcut.register('CommandOrControl+Alt+P', () => {
     // for some reason the user can zoom out but not in so for now we'll reinitialize this every time they invoke the popup
     win.webContents.setZoomFactor(1);
@@ -39,9 +42,10 @@ function onAppReady() {
     shell.openExternal(url);
   });
   win.once('ready-to-show', () => {
-    win.webContents.setZoomFactor(1.5);
+    win.webContents.setZoomFactor(1);
     win.show();
   });
+  win.webContents.openDevTools();
 }
 app.allowRendererProcessReuse = false;
 app.once('ready', onAppReady);
