@@ -1,47 +1,57 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <title>CodeCopy</title>
-    <link rel="stylesheet" href="./css/master.css">
-    <link rel="stylesheet" href="./css/codemirror.css">
-    <link rel="stylesheet" href="./css/themes/monokai.css">
-    <link rel="stylesheet" href="./css/show-hint.css">
+    <link rel="stylesheet" href="./css/master.css" />
+    <link rel="stylesheet" href="./css/codemirror.css" />
+    <link rel="stylesheet" href="./css/themes/monokai.css" />
+    <link rel="stylesheet" href="./css/show-hint.css" />
   </head>
   <body>
     <img id="settingsButton" class="cog" src="./svg/cog.svg" />
     <div id="settings">
       <div class="controls">
+        <h1>Settings</h1>
+        <div class="checkboxContainer">
+          <input id="stripCheckbox" type="checkbox" />
+          <label for="stripCheckbox"
+            >strip whitespace before period when pasting</label
+          >
+        </div>
+        <div class="checkboxContainer">
+          <input id="singleLineCheckbox" type="checkbox" />
+          <label for="singleLineCheckbox">single line mode</label>
+        </div>
         <div>
-          <div>
-            <label for="stripCheckbox">strip whitespace before period when
-              pasting</label>
-            <input id="stripCheckbox" type="checkbox" />
-          </div>
-          <div>
-            <label for="frequentWordsGlob">Glob for hints and autocomplete</label>
-            <div class="syncContainer">
-              <input id="frequentWordsGlob" type="text"
-                placeholder="/Users/Me/myRepo/**/*.rb" />
-              <button id="syncButton">Sync</button>
-              <div id="syncLoader"></div>
-            </div>
+          <label for="frequentWordsGlob">Glob for hints and autocomplete</label>
+          <div class="syncContainer">
+            <input
+              id="frequentWordsGlob"
+              type="text"
+              placeholder="/Users/Me/myRepo/**/*.rb"
+            />
+            <button id="syncButton">Sync</button>
+            <div id="syncLoader"></div>
           </div>
           <p id="wordsSynced">0 words synced</p>
         </div>
       </div>
       <div class="footer">
-        <p><a href="https://github.com/jesseduffield/CodeSlap"
-            target="_blank">CodeSlap</a>,
-          created by Jesse Duffield</p>
+        <p>
+          <a href="https://github.com/jesseduffield/CodeSlap" target="_blank"
+            >CodeSlap</a
+          >, created by Jesse Duffield
+        </p>
         <a href="https://jesseduffield.com" target="_blank">My Blog</a>
-        <br>
-        <a href="https://github.com/sponsors/jesseduffield" target="_blank">Sponsor
-          Me</a>
+        <br />
+        <a href="https://github.com/sponsors/jesseduffield" target="_blank"
+          >Sponsor Me</a
+        >
       </div>
     </div>
     <script>
-      require('./renderer.js')
+      require('./renderer.js');
     </script>
   </body>
 </html>

@@ -58,7 +58,7 @@ function onAppReady() {
     win.webContents.setZoomFactor(1);
     win.show();
   });
-  win.webContents.openDevTools();
+  // win.webContents.openDevTools();
 }
 app.allowRendererProcessReuse = false;
 app.once('ready', onAppReady);

@@ -14,10 +14,48 @@ label {
   font-color: white;
 }
 
+h1 {
+  font-size: 1.5em;
+  color: white;
+  font-weight: 500;
+  margin: 0;
+  margin-bottom: 10px;
+}
+
 input {
   color: black;
-  height: 20px;
+}
+
+input[type='text'] {
   width: 400px;
+  height: 20px;
+  background-color: #fbfbfb;
+  box-shadow: none;
+  border: none;
+  color: #4e4e4e;
+  padding: 3px;
+}
+
+input[type='checkbox'] {
+  width: 20px;
+  height: 20px;
+}
+
+::placeholder {
+  color: #a5a5a5;
+}
+
+.checkboxContainer {
+  display: flex;
+  align-items: center;
+}
+
+.checkboxContainer > * + * {
+  margin-left: 10px;
+}
+
+.controls > * + * {
+  margin-top: 10px;
 }
 
 .cog {
@@ -81,8 +119,27 @@ input {
 .syncContainer {
   display: flex;
   align-items: center;
+  margin-top: 3px;
 }
 
 .syncContainer > * + * {
   margin-left: 10px;
+}
+
+#wordsSynced {
+  margin: 0;
+  margin-top: 5px;
+  color: #9e9e9e;
+}
+
+#syncButton {
+  height: 28px;
+  background-color: #3c3c3c;
+  border: 1px solid grey;
+  color: white;
+}
+
+#syncButton:hover {
+  cursor: pointer;
+  background-color: grey;
 }
