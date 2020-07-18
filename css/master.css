@@ -2,7 +2,8 @@ html,
 body {
   margin: 0;
   height: 100%;
-  font-family: monospace;
+  /* font-family: monospace; */
+  font-family: 'Courier New';
   overflow: hidden;
 }
 
@@ -34,11 +35,8 @@ input[type='text'] {
   border: none;
   color: #4e4e4e;
   padding: 3px;
-}
-
-input[type='checkbox'] {
-  width: 20px;
-  height: 20px;
+  font-family: 'Courier New';
+  flex-grow: 1;
 }
 
 ::placeholder {
@@ -136,10 +134,28 @@ input[type='checkbox'] {
   height: 28px;
   background-color: #3c3c3c;
   border: 1px solid grey;
+  outline-style: none;
+  font-family: 'Courier New';
+  font-size: 1em;
   color: white;
 }
 
 #syncButton:hover {
   cursor: pointer;
-  background-color: grey;
+  background-color: #222;
+}
+
+#targetAppLine {
+  color: #c5c5c5;
+  bottom: 0;
+  left: 0;
+  position: absolute;
+  z-index: 2;
+  margin-bottom: 10px;
+  margin-left: 10px;
+  font-size: 0.9em;
+}
+
+#targetAppLine.settingsShow {
+  display: none;
 }

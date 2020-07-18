@@ -4,23 +4,31 @@
     <meta charset="UTF-8" />
     <title>CodeCopy</title>
     <link rel="stylesheet" href="./css/master.css" />
+    <link rel="stylesheet" href="./css/checkbox.css" />
     <link rel="stylesheet" href="./css/codemirror.css" />
     <link rel="stylesheet" href="./css/themes/monokai.css" />
     <link rel="stylesheet" href="./css/show-hint.css" />
   </head>
   <body>
     <img id="settingsButton" class="cog" src="./svg/cog.svg" />
+    <div id="targetAppLine"></div>
     <div id="settings">
       <div class="controls">
         <h1>Settings</h1>
-        <div class="checkboxContainer">
-          <input id="stripWhitespaceBeforePeriod" type="checkbox" />
+        <div id="stripWhitespaceContainer" class="checkboxContainer">
+          <div class="innerCheckboxContainer">
+            <input id="stripWhitespaceBeforePeriod" type="checkbox" />
+            <span class="checkmark"></span>
+          </div>
           <label for="stripWhitespaceBeforePeriod"
             >strip whitespace before period when pasting</label
           >
         </div>
-        <div class="checkboxContainer">
-          <input id="singleLineCheckbox" type="checkbox" />
+        <div id="singleLineContainer" class="checkboxContainer">
+          <div class="innerCheckboxContainer">
+            <input id="singleLineCheckbox" type="checkbox" />
+            <span class="checkmark"></span>
+          </div>
           <label for="singleLineCheckbox">single line mode</label>
         </div>
         <div>
@@ -35,6 +43,9 @@
             <div id="syncLoader"></div>
           </div>
           <p id="wordsSynced">0 words synced</p>
+        </div>
+        <div>
+          <select id="modeSelect" value="ruby">
         </div>
       </div>
       <div class="footer">

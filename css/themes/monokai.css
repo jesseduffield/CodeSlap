@@ -1,7 +1,8 @@
 /* Based on Sublime Text's Monokai theme */
 
 .cm-s-monokai.CodeMirror {
-  background: #272822;
+  /* background formerly #272822 */
+  background: black;
   color: #f8f8f2;
 }
 .cm-s-monokai div.CodeMirror-selected {

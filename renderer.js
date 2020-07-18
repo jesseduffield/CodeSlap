@@ -4,6 +4,7 @@ const CodeMirror = require('codemirror');
 const History = require('./history');
 let allWords = require('./words.json');
 const extractFrequentWords = require('./extractFrequentWords');
+const applescript = require('applescript');
 
 const fs = require('fs');
 
@@ -19,7 +20,21 @@ const hideWindow = () => {
 };
 
 require('codemirror/keymap/sublime');
+require('codemirror/mode/meta');
 require('codemirror/mode/ruby/ruby');
+
+console.log(CodeMirror.modeInfo);
+
+const modes = CodeMirror.modeInfo.map(info => info.mode);
+
+// this takes a bit of time to load. Perhaps we should do this asynchronously and only when the settings page is opened.
+modes.forEach(mode => {
+  if (mode === 'null') {
+    return;
+  }
+  require(`codemirror/mode/${mode}/${mode}`);
+});
+
 require('codemirror/addon/hint/show-hint');
 
 const getConfig = async () => {
@@ -157,16 +172,23 @@ const run = async () => {
   const syncLoader = document.getElementById('syncLoader');
   const wordsSynced = document.getElementById('wordsSynced');
   const singleLineCheckbox = document.getElementById('singleLineCheckbox');
+  const singleLineContainer = document.getElementById('singleLineContainer');
   const stripWhitespaceCheckbox = document.getElementById(
     'stripWhitespaceBeforePeriod'
   );
+  const stripWhitespaceContainer = document.getElementById(
+    'stripWhitespaceContainer'
+  );
   const codeMirrorWrapper = document.getElementsByClassName('CodeMirror')[0];
+  const targetAppLine = document.getElementById('targetAppLine');
 
   const applyConfig = () => {
     singleLineCheckbox.checked = config.get('singleLine');
     stripWhitespaceCheckbox.checked = config.get('stripWhitespaceBeforePeriod');
     frequentWordsGlob.value = config.get('frequentWordsGlob');
+    editor.setOption('extraKeys', { Enter: !config.get('singleLine') });
   };
+
   applyConfig();
 
   editor.on('change', function() {
@@ -207,6 +229,7 @@ const run = async () => {
 
     settings.classList.toggle('settingsShow');
     codeMirrorWrapper.classList.toggle('settingsShow');
+    targetAppLine.classList.toggle('settingsShow');
   });
 
   const setStatus = status => {
@@ -226,16 +249,40 @@ const run = async () => {
     config.update('frequentWordsGlob', frequentWordsGlob.value);
   });
 
-  singleLineCheckbox.addEventListener('change', async event => {
-    config.update('singleLine', singleLineCheckbox.checked);
+  singleLineContainer.addEventListener('click', async event => {
+    console.log('singleLineCheckbox.checked', singleLineCheckbox.checked);
+    config.update('singleLine', !singleLineCheckbox.checked);
+    applyConfig(config);
   });
 
-  stripWhitespaceCheckbox.addEventListener('change', async event => {
+  stripWhitespaceContainer.addEventListener('click', async event => {
     config.update(
       'stripWhitespaceBeforePeriod',
-      stripWhitespaceCheckbox.checked
+      !stripWhitespaceCheckbox.checked
     );
+    applyConfig(config);
   });
+
+  setInterval(() => {
+    const script =
+      'tell application "System Events" to get name of first application process whose frontmost is true';
+
+    applescript.execString(script, (err, rtn) => {
+      let str = '';
+      if (err) {
+        console.warn(err);
+
+        str = `Writing to: unknown`;
+      } else {
+        str = `Writing to: ${rtn}`;
+      }
+      if (targetAppLine.innerHTML !== str) {
+        // not sure if it actually matters to reassign the same value here
+        // in terms of performance, but chrome devtools was flashing angrily at me
+        targetAppLine.innerHTML = str;
+      }
+    });
+  }, 500);
 };
 
 run();
