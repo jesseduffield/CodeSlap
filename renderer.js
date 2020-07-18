@@ -5,147 +5,237 @@ const History = require('./history');
 let allWords = require('./words.json');
 const extractFrequentWords = require('./extractFrequentWords');
 
+const fs = require('fs');
+
+const { promisify } = require('util');
+
+const readFileAsync = promisify(fs.readFile);
+const writeFileAsync = promisify(fs.writeFile);
+
 const { Menu } = remote;
 const win = remote.getCurrentWindow();
-const hideWindow = () => Menu.sendActionToFirstResponder('hide:');
+const hideWindow = () => {
+  Menu.sendActionToFirstResponder('hide:');
+};
 
 require('codemirror/keymap/sublime');
 require('codemirror/mode/ruby/ruby');
 require('codemirror/addon/hint/show-hint');
 
-const singleLineMode = true;
+const getConfig = async () => {
+  let defaultConfig = {
+    stripWhitespaceBeforePeriod: false,
+    singleLine: true,
+    frequentWordsGlob: '',
+  };
 
-const editor = CodeMirror(document.body, {
-  theme: 'monokai',
-  tabSize: 2,
-  lineWrapping: true,
-  mode: 'ruby',
-  keyMap: 'sublime',
-  indentWithTabs: false,
-  extraKeys: { Enter: !singleLineMode },
-});
+  const savedConfig = await readFileAsync('./config.json');
 
-editor.focus();
+  let config = { ...defaultConfig, ...JSON.parse(savedConfig) };
 
-robot.setKeyboardDelay(0);
+  const save = async () => {
+    await writeFileAsync('./config.json', JSON.stringify(config));
+  };
 
-const history = new History();
+  return {
+    load: async () => {
+      const savedConfig = await readFileAsync('./config.json');
 
-const submit = () => {
-  const start = new Date().getTime();
+      config = { ...config, ...JSON.parse(savedConfig) };
+    },
+    update: async (key, value) => {
+      config[key] = value;
 
-  event.preventDefault();
-
-  const text = editor.getValue();
-  const textToWrite = text.replace(/\s+\./g, '.');
-
-  history.push(text);
-  editor.setValue('');
-
-  hideWindow();
-
-  robot.typeString(textToWrite);
-
-  robot.keyTap('enter');
-
-  win.show();
+      await save();
+    },
+    get: key => {
+      return config[key];
+    },
+  };
 };
 
-const moveCursorToEndOfLine = () => {
-  const currentLine = editor.getCursor().line;
-  editor.setCursor({
-    line: currentLine,
-    ch: editor.getLine(currentLine).length,
+const run = async () => {
+  const config = await getConfig();
+
+  const editor = CodeMirror(document.body, {
+    theme: 'monokai',
+    tabSize: 2,
+    lineWrapping: true,
+    mode: 'ruby',
+    keyMap: 'sublime',
+    indentWithTabs: false,
+    extraKeys: { Enter: !config.get('singleLine') },
   });
-};
 
-editor.on('keydown', (_, event) => {
-  // I prefer using metaKey here but it seems to cause crashes
-  if (event.key === 'Enter' && event.shiftKey) {
-    submit();
-  } else if (singleLineMode && event.key === 'Enter') {
-    event.stopPropagation();
-    submit();
-  } else if (singleLineMode && event.key === 'ArrowUp') {
-    const line = history.previous();
-    editor.setValue(line);
-    moveCursorToEndOfLine();
-  } else if (singleLineMode && event.key === 'ArrowDown') {
-    const line = history.next();
-    editor.setValue(line);
-    moveCursorToEndOfLine();
-  } else if (event.key === 'j' && event.metaKey) {
+  editor.focus();
+
+  robot.setKeyboardDelay(0);
+
+  const history = new History();
+
+  const submit = () => {
+    const start = new Date().getTime();
+
+    event.preventDefault();
+
+    const text = editor.getValue();
+    const textToWrite = config.get('stripWhitespaceBeforePeriod')
+      ? text.replace(/\s+\./g, '.')
+      : text;
+
+    history.push(text);
+    editor.setValue('');
+
+    hideWindow();
+
+    robot.typeString(textToWrite);
+
+    robot.keyTap('enter');
+
+    win.show();
+  };
+
+  const moveCursorToEndOfLine = () => {
+    const currentLine = editor.getCursor().line;
+    editor.setCursor({
+      line: currentLine,
+      ch: editor.getLine(currentLine).length,
+    });
+  };
+
+  const previousCommand = () => {
     editor.setValue(history.previous());
     moveCursorToEndOfLine();
-  } else if (event.key === 'k' && event.metaKey) {
+  };
+
+  const nextCommand = () => {
     editor.setValue(history.next());
     moveCursorToEndOfLine();
-  }
+  };
 
-  // this might actually need to return false. Depends on whether we want to stop propagation or not
-  return true;
-});
+  const handleEditorEvent = event => {
+    // I prefer using metaKey here but it seems to cause crashes
+    if (event.key === 'Enter' && event.shiftKey) {
+      submit();
+      return true;
+    } else if (config.get('singleLine') && event.key === 'Enter') {
+      submit();
+      return true;
+    } else if (config.get('singleLine') && event.key === 'ArrowUp') {
+      previousCommand();
+      return true;
+    } else if (config.get('singleLine') && event.key === 'ArrowDown') {
+      nextCommand();
+      return true;
+    } else if (event.key === 'j' && event.metaKey) {
+      previousCommand();
+      return true;
+    } else if (event.key === 'k' && event.metaKey) {
+      nextCommand();
+      return true;
+    } else if (event.key === 'u' && event.ctrlKey) {
+      editor.setValue('');
+    }
 
-editor.on('change', function() {
-  const wordRange = editor.findWordAt(editor.getCursor());
-  const currentWord = editor.getRange(wordRange.anchor, wordRange.head);
+    return false;
+  };
 
-  if (editor.getCursor().ch !== wordRange.to().ch) {
-    // only show hint if you're at the end of the word
-    return;
-  }
+  editor.on('keydown', (_, event) => {
+    if (handleEditorEvent(event)) {
+      event.preventDefault();
+      event.stopPropagation();
+      return true;
+    }
 
-  if (currentWord.length === 0) {
-    return;
-  }
-
-  const list = allWords.filter(
-    word => word.startsWith(currentWord) && word !== currentWord
-  );
-
-  if (list.length === 1 && list[0] === currentWord) {
-    return;
-  }
-
-  editor.showHint({
-    completeSingle: false,
-    hint: function() {
-      return {
-        from: wordRange.anchor,
-        to: wordRange.head,
-        list: list,
-      };
-    },
+    return false;
   });
-});
 
-const settings = document.getElementById('settings');
-const settingsButton = document.getElementById('settingsButton');
-const codeMirrorWrapper = document.getElementsByClassName('CodeMirror')[0];
-const syncButton = document.getElementById('syncButton');
-const frequentWordsGlob = document.getElementById('frequentWordsGlob');
-const syncLoader = document.getElementById('syncLoader');
-const wordsSynced = document.getElementById('wordsSynced');
+  const settings = document.getElementById('settings');
+  const settingsButton = document.getElementById('settingsButton');
+  const syncButton = document.getElementById('syncButton');
+  const frequentWordsGlob = document.getElementById('frequentWordsGlob');
+  const syncLoader = document.getElementById('syncLoader');
+  const wordsSynced = document.getElementById('wordsSynced');
+  const singleLineCheckbox = document.getElementById('singleLineCheckbox');
+  const stripWhitespaceCheckbox = document.getElementById(
+    'stripWhitespaceBeforePeriod'
+  );
+  const codeMirrorWrapper = document.getElementsByClassName('CodeMirror')[0];
 
-settingsButton.addEventListener('click', event => {
-  event.stopPropagation();
+  const applyConfig = () => {
+    singleLineCheckbox.checked = config.get('singleLine');
+    stripWhitespaceCheckbox.checked = config.get('stripWhitespaceBeforePeriod');
+    frequentWordsGlob.value = config.get('frequentWordsGlob');
+  };
+  applyConfig();
 
-  settings.classList.toggle('settingsShow');
-  codeMirrorWrapper.classList.toggle('settingsShow');
-});
+  editor.on('change', function() {
+    const wordRange = editor.findWordAt(editor.getCursor());
+    const currentWord = editor.getRange(wordRange.anchor, wordRange.head);
 
-const setStatus = status => {
-  wordsSynced.innerHTML = status;
+    if (editor.getCursor().ch !== wordRange.to().ch) {
+      // only show hint if you're at the end of the word
+      return;
+    }
+
+    if (currentWord.length === 0) {
+      return;
+    }
+
+    const list = allWords.filter(
+      word => word.startsWith(currentWord) && word !== currentWord
+    );
+
+    if (list.length === 1 && list[0] === currentWord) {
+      return;
+    }
+
+    editor.showHint({
+      completeSingle: false,
+      hint: function() {
+        return {
+          from: wordRange.anchor,
+          to: wordRange.head,
+          list: list,
+        };
+      },
+    });
+  });
+
+  settingsButton.addEventListener('click', event => {
+    event.stopPropagation();
+
+    settings.classList.toggle('settingsShow');
+    codeMirrorWrapper.classList.toggle('settingsShow');
+  });
+
+  const setStatus = status => {
+    wordsSynced.innerHTML = status;
+  };
+
+  setStatus(`${allWords.length} words synced`);
+
+  syncButton.addEventListener('click', async event => {
+    event.stopPropagation();
+
+    syncLoader.classList.add('syncing');
+    frequentWordsGlob.classList.add('syncing');
+    allWords = await extractFrequentWords(frequentWordsGlob.value, setStatus);
+    frequentWordsGlob.classList.remove('syncing');
+    syncLoader.classList.remove('syncing');
+    config.update('frequentWordsGlob', frequentWordsGlob.value);
+  });
+
+  singleLineCheckbox.addEventListener('change', async event => {
+    config.update('singleLine', singleLineCheckbox.checked);
+  });
+
+  stripWhitespaceCheckbox.addEventListener('change', async event => {
+    config.update(
+      'stripWhitespaceBeforePeriod',
+      stripWhitespaceCheckbox.checked
+    );
+  });
 };
 
-setStatus(`${allWords.length} words synced`);
-
-syncButton.addEventListener('click', async event => {
-  event.stopPropagation();
-
-  syncLoader.classList.add('syncing');
-  frequentWordsGlob.classList.add('syncing');
-  allWords = await extractFrequentWords(frequentWordsGlob.value, setStatus);
-  frequentWordsGlob.classList.remove('syncing');
-  syncLoader.classList.remove('syncing');
-});
+run();

@@ -24,7 +24,9 @@ class History {
   }
 
   push(value) {
-    this.history.push(value);
+    if (value !== this.history[this.history.length - 1]) {
+      this.history.push(value);
+    }
     this.index = this.history.length;
   }
 }
