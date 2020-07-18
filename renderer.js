@@ -21,9 +21,7 @@ const hideWindow = () => {
 
 require('codemirror/keymap/sublime');
 require('codemirror/mode/meta');
-require('codemirror/mode/ruby/ruby');
-
-console.log(CodeMirror.modeInfo);
+require('codemirror/addon/hint/show-hint');
 
 const modes = CodeMirror.modeInfo.map(info => info.mode);
 
@@ -35,13 +33,12 @@ modes.forEach(mode => {
   require(`codemirror/mode/${mode}/${mode}`);
 });
 
-require('codemirror/addon/hint/show-hint');
-
 const getConfig = async () => {
   let defaultConfig = {
     stripWhitespaceBeforePeriod: false,
     singleLine: true,
     frequentWordsGlob: '',
+    mode: 'ruby',
   };
 
   const savedConfig = await readFileAsync('./config.json');
@@ -53,12 +50,7 @@ const getConfig = async () => {
   };
 
   return {
-    load: async () => {
-      const savedConfig = await readFileAsync('./config.json');
-
-      config = { ...config, ...JSON.parse(savedConfig) };
-    },
-    update: async (key, value) => {
+    set: async (key, value) => {
       config[key] = value;
 
       await save();
@@ -76,7 +68,7 @@ const run = async () => {
     theme: 'monokai',
     tabSize: 2,
     lineWrapping: true,
-    mode: 'ruby',
+    mode: config.get('mode'),
     keyMap: 'sublime',
     indentWithTabs: false,
     extraKeys: { Enter: !config.get('singleLine') },
@@ -182,11 +174,24 @@ const run = async () => {
   const codeMirrorWrapper = document.getElementsByClassName('CodeMirror')[0];
   const targetAppLine = document.getElementById('targetAppLine');
 
-  const applyConfig = () => {
+  const modeSelect = document.getElementById('modeSelect');
+
+  // populate select with options
+  modes.forEach(mode => {
+    modeSelect.options.add(new Option(mode, mode));
+  });
+
+  applyConfig = () => {
     singleLineCheckbox.checked = config.get('singleLine');
-    stripWhitespaceCheckbox.checked = config.get('stripWhitespaceBeforePeriod');
-    frequentWordsGlob.value = config.get('frequentWordsGlob');
     editor.setOption('extraKeys', { Enter: !config.get('singleLine') });
+
+    stripWhitespaceCheckbox.checked = config.get('stripWhitespaceBeforePeriod');
+
+    frequentWordsGlob.value = config.get('frequentWordsGlob');
+
+    const selectedMode = config.get('mode');
+    modeSelect.value = selectedMode;
+    editor.setOption('mode', selectedMode);
   };
 
   applyConfig();
@@ -246,20 +251,22 @@ const run = async () => {
     allWords = await extractFrequentWords(frequentWordsGlob.value, setStatus);
     frequentWordsGlob.classList.remove('syncing');
     syncLoader.classList.remove('syncing');
-    config.update('frequentWordsGlob', frequentWordsGlob.value);
+    config.set('frequentWordsGlob', frequentWordsGlob.value);
   });
 
   singleLineContainer.addEventListener('click', async event => {
     console.log('singleLineCheckbox.checked', singleLineCheckbox.checked);
-    config.update('singleLine', !singleLineCheckbox.checked);
+    config.set('singleLine', !singleLineCheckbox.checked);
     applyConfig(config);
   });
 
   stripWhitespaceContainer.addEventListener('click', async event => {
-    config.update(
-      'stripWhitespaceBeforePeriod',
-      !stripWhitespaceCheckbox.checked
-    );
+    config.set('stripWhitespaceBeforePeriod', !stripWhitespaceCheckbox.checked);
+    applyConfig(config);
+  });
+
+  modeSelect.addEventListener('change', async event => {
+    config.set('mode', event.target.value);
     applyConfig(config);
   });
 

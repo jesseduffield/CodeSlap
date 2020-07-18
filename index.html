@@ -32,20 +32,22 @@
           <label for="singleLineCheckbox">single line mode</label>
         </div>
         <div>
+          <select id="modeSelect" value="ruby"></select>
+          <label for="modeSelect">Syntax colouring</label>
+        </div>
+        <div>
           <label for="frequentWordsGlob">Glob for hints and autocomplete</label>
           <div class="syncContainer">
             <input
               id="frequentWordsGlob"
               type="text"
               placeholder="/Users/Me/myRepo/**/*.rb"
+              spellcheck="false"
             />
             <button id="syncButton">Sync</button>
             <div id="syncLoader"></div>
           </div>
           <p id="wordsSynced">0 words synced</p>
-        </div>
-        <div>
-          <select id="modeSelect" value="ruby">
         </div>
       </div>
       <div class="footer">
