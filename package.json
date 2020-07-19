@@ -1,7 +1,7 @@
 {
   "name": "codeslap",
   "version": "0.1.0",
-  "description": "Electron app that lets you write text to your terminal in a mini editor",
+  "description": "Electron app that lets you push text to your terminal in a mini editor",
   "main": "main.js",
   "scripts": {
     "start": "electron ."
