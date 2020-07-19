@@ -1,7 +1,5 @@
 const fs = require('fs');
-
 const { promisify } = require('util');
-
 const readFileAsync = promisify(fs.readFile);
 const writeFileAsync = promisify(fs.writeFile);
 
@@ -21,7 +19,7 @@ const getConfig = async defaultConfig => {
       config[key] = value;
 
       if (onChangeCallbacks[key]) {
-        onChangeCallbacks[key](value);
+        onChangeCallbacks[key].forEach(cb => cb(value));
       }
 
       await save();
@@ -32,12 +30,15 @@ const getConfig = async defaultConfig => {
     },
 
     onChange(key, callback) {
-      onChangeCallbacks[key] = callback;
+      if (onChangeCallbacks[key] === undefined) {
+        onChangeCallbacks[key] = [];
+      }
+      onChangeCallbacks[key].push(callback);
     },
 
     apply() {
-      Object.entries(onChangeCallbacks).forEach(([key, callback]) => {
-        callback(config[key]);
+      Object.entries(onChangeCallbacks).forEach(([key, callbacks]) => {
+        callbacks.forEach(cb => cb(config[key]));
       });
     },
   };

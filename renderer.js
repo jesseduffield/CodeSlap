@@ -3,14 +3,9 @@ const robot = require('robotjs');
 const CodeMirror = require('codemirror');
 const { newHistory } = require('./history');
 let allWords = require('./words.json');
-const extractFrequentWords = require('./extractFrequentWords');
 const applescript = require('applescript');
 const { getConfig } = require('./config');
-
-const fs = require('fs');
-const { promisify } = require('util');
-const readFileAsync = promisify(fs.readFile);
-const writeFileAsync = promisify(fs.writeFile);
+const { setupSettings } = require('./settings');
 
 const { Menu } = remote;
 const win = remote.getCurrentWindow();
@@ -19,10 +14,7 @@ const hideWindow = () => {
 };
 
 require('codemirror/keymap/sublime');
-require('codemirror/mode/meta');
 require('codemirror/addon/hint/show-hint');
-
-const modes = CodeMirror.modeInfo.map(info => info.mode);
 
 const run = async () => {
   const config = await getConfig({
@@ -123,51 +115,17 @@ const run = async () => {
     return false;
   });
 
-  const settings = document.getElementById('settings');
-  const settingsButton = document.getElementById('settingsButton');
-  const syncButton = document.getElementById('syncButton');
-  const frequentWordsGlob = document.getElementById('frequentWordsGlob');
-  const syncLoader = document.getElementById('syncLoader');
-  const wordsSynced = document.getElementById('wordsSynced');
-  const singleLineCheckbox = document.getElementById('singleLineCheckbox');
-  const singleLineContainer = document.getElementById('singleLineContainer');
-  const stripWhitespaceCheckbox = document.getElementById(
-    'stripWhitespaceBeforePeriod'
-  );
-  const stripWhitespaceContainer = document.getElementById(
-    'stripWhitespaceContainer'
-  );
-  const codeMirrorWrapper = document.getElementsByClassName('CodeMirror')[0];
-  const targetAppLine = document.getElementById('targetAppLine');
-
-  const modeSelect = document.getElementById('modeSelect');
-
-  // populate select with options
-  modes.forEach(mode => {
-    modeSelect.options.add(new Option(mode, mode));
-  });
-
   config.onChange('mode', value => {
     if (value !== 'null') {
       // these are a little expensive to load so we're only requiring them when we need them
       require(`codemirror/mode/${value}/${value}`);
     }
 
-    modeSelect.value = value;
     editor.setOption('mode', value);
   });
 
   config.onChange('singleLine', value => {
-    singleLineCheckbox.checked = value;
     editor.setOption('extraKeys', { Enter: !value });
-  });
-
-  config.onChange('stripWhitespaceBeforePeriod', value => {
-    stripWhitespaceCheckbox.checked = value;
-  });
-
-  config.onChange('frequentWordsGlob', value => {
-    frequentWordsGlob.value = value;
   });
 
   config.apply();
@@ -205,54 +163,6 @@ const run = async () => {
     });
   });
 
-  settingsButton.addEventListener('click', event => {
-    event.stopPropagation();
-
-    [settings, codeMirrorWrapper, targetAppLine].forEach(el => {
-      el.classList.toggle('settingsShow');
-    });
-  });
-
-  const setStatus = status => {
-    wordsSynced.innerHTML = status;
-  };
-
-  setStatus(`${allWords.length} words synced`);
-
-  syncButton.addEventListener('click', async event => {
-    event.stopPropagation();
-
-    const elementsWithSyncingState = [
-      syncLoader,
-      syncButton,
-      frequentWordsGlob,
-    ];
-
-    elementsWithSyncingState.forEach(el => {
-      el.classList.add('syncing');
-    });
-
-    allWords = await extractFrequentWords(frequentWordsGlob.value, setStatus);
-
-    elementsWithSyncingState.forEach(el => {
-      el.classList.remove('syncing');
-    });
-
-    config.set('frequentWordsGlob', frequentWordsGlob.value);
-  });
-
-  singleLineContainer.addEventListener('click', async event => {
-    config.set('singleLine', !singleLineCheckbox.checked);
-  });
-
-  stripWhitespaceContainer.addEventListener('click', async event => {
-    config.set('stripWhitespaceBeforePeriod', !stripWhitespaceCheckbox.checked);
-  });
-
-  modeSelect.addEventListener('change', async event => {
-    config.set('mode', event.target.value);
-  });
-
   setInterval(() => {
     // would be good to make this platform agnostic
     const script =
@@ -268,6 +178,8 @@ const run = async () => {
       }
     });
   }, 500);
+
+  setupSettings(config);
 };
 
 run();
