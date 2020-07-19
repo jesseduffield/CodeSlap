@@ -1,7 +1,5 @@
 const CodeMirror = require('codemirror');
 const { newHistory } = require('./history');
-let allWords = require('./words.json');
-const extractFrequentWords = require('./extractFrequentWords');
 const { getConfig } = require('./config');
 const { fromPairs } = require('./utils');
 
@@ -32,7 +30,7 @@ const elementIds = [
 const getElements = () =>
   fromPairs(elementIds.map(id => [id, document.getElementById(id)]));
 
-const setupSettings = config => {
+const setupSettings = ({ config, hintWords }) => {
   const {
     settings,
     settingsButton,
@@ -54,19 +52,19 @@ const setupSettings = config => {
     modeSelect.options.add(new Option(mode, mode));
   });
 
+  const setStatus = status => {
+    wordsSynced.innerHTML = status;
+  };
+
   settingsButton.addEventListener('click', event => {
     event.stopPropagation();
 
     [settings, codeMirrorWrapper, targetAppLine].forEach(el => {
       el.classList.toggle('settingsShow');
     });
+
+    setStatus(`${hintWords.words().length} words synced`);
   });
-
-  const setStatus = status => {
-    wordsSynced.innerHTML = status;
-  };
-
-  setStatus(`${allWords.length} words synced`);
 
   syncButton.addEventListener('click', async event => {
     event.stopPropagation();
@@ -81,7 +79,7 @@ const setupSettings = config => {
       el.classList.add('syncing');
     });
 
-    allWords = await extractFrequentWords(frequentWordsGlob.value, setStatus);
+    await hintWords.sync(frequentWordsGlob.value, setStatus);
 
     elementsWithSyncingState.forEach(el => {
       el.classList.remove('syncing');

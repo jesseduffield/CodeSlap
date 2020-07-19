@@ -6,6 +6,7 @@ let allWords = require('./words.json');
 const applescript = require('applescript');
 const { getConfig } = require('./config');
 const { setupSettings } = require('./settings');
+const { getHintWords } = require('./hintWords');
 
 const { Menu } = remote;
 const win = remote.getCurrentWindow();
@@ -24,6 +25,9 @@ const run = async () => {
     mode: 'ruby',
   });
 
+  const hintWords = getHintWords();
+  hintWords.load();
+
   const editor = CodeMirror(document.body, {
     theme: 'monokai',
     tabSize: 2,
@@ -31,6 +35,19 @@ const run = async () => {
     keyMap: 'sublime',
     indentWithTabs: false,
   });
+
+  config.onChange('mode', value => {
+    if (value !== 'null') {
+      // these are a little expensive to load so we're only requiring them when we need them
+      require(`codemirror/mode/${value}/${value}`);
+    }
+
+    editor.setOption('mode', value);
+  });
+  config.onChange('singleLine', value => {
+    editor.setOption('extraKeys', { Enter: !value });
+  });
+  config.apply();
 
   editor.focus();
 
@@ -115,21 +132,6 @@ const run = async () => {
     return false;
   });
 
-  config.onChange('mode', value => {
-    if (value !== 'null') {
-      // these are a little expensive to load so we're only requiring them when we need them
-      require(`codemirror/mode/${value}/${value}`);
-    }
-
-    editor.setOption('mode', value);
-  });
-
-  config.onChange('singleLine', value => {
-    editor.setOption('extraKeys', { Enter: !value });
-  });
-
-  config.apply();
-
   editor.on('change', function() {
     const wordRange = editor.findWordAt(editor.getCursor());
     const currentWord = editor.getRange(wordRange.anchor, wordRange.head);
@@ -143,9 +145,9 @@ const run = async () => {
       return;
     }
 
-    const list = allWords.filter(
-      word => word.startsWith(currentWord) && word !== currentWord
-    );
+    const list = hintWords
+      .words()
+      .filter(word => word.startsWith(currentWord) && word !== currentWord);
 
     if (list.length === 1 && list[0] === currentWord) {
       return;
@@ -179,7 +181,7 @@ const run = async () => {
     });
   }, 500);
 
-  setupSettings(config);
+  setupSettings({ config, hintWords });
 };
 
 run();
