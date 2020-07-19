@@ -7,6 +7,7 @@ const {
   Menu,
 } = require('electron');
 const { createMenu } = require('./src/menu');
+const { setupConfigDir } = require('./src/storage');
 
 let win = null;
 
@@ -16,6 +17,8 @@ Menu.setApplicationMenu(menu);
 const hideWindow = () => Menu.sendActionToFirstResponder('hide:');
 
 let hasFocus = true;
+
+setupConfigDir();
 
 function onAppReady() {
   win = new BrowserWindow({

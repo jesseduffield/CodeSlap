@@ -1,9 +1,9 @@
 const glob = require('glob-promise');
-const fs = require('fs');
 const { flatten } = require('./utils');
+const { configPath } = require('./storage');
 
+const fs = require('fs');
 const { promisify } = require('util');
-
 const readFileAsync = promisify(fs.readFile);
 const writeFileAsync = promisify(fs.writeFile);
 
@@ -15,9 +15,16 @@ const findWordsInFiles = async filenames =>
   flatten(
     await Promise.all(
       filenames.map(async (filename, index) => {
-        const fileContent = await readFileAsync(filename, 'utf8');
+        try {
+          const fileContent = await readFileAsync(filename, 'utf8');
 
-        return fileContent.match(/\w+/g) || [];
+          return fileContent.match(/\w+/g) || [];
+        } catch (e) {
+          // silently erroring for now
+          console.error(e);
+
+          return [];
+        }
       })
     )
   );
@@ -67,7 +74,7 @@ const orderWordsByFrequency = wordFrequencyMap =>
     })
     .map(([key, _]) => key);
 
-const wordsFilename = './words.json';
+const wordsPath = configPath('words.json');
 
 const getHintWords = () => {
   let words = [];
@@ -78,11 +85,23 @@ const getHintWords = () => {
     },
 
     async load() {
-      const fileContent = await readFileAsync(wordsFilename, 'utf8');
-      words = JSON.parse(fileContent);
+      try {
+        const fileContent = await readFileAsync(wordsPath, 'utf8');
+
+        words = JSON.parse(fileContent);
+      } catch (e) {
+        if (e.code !== 'ENOENT') {
+          alert(e);
+        }
+      }
     },
 
     async sync(globStr, setStatus) {
+      if (!globStr) {
+        setStatus('cannot sync with blank glob string');
+        return;
+      }
+
       setStatus('finding files');
 
       const filenames = await glob(globStr, {});
@@ -96,7 +115,12 @@ const getHintWords = () => {
       words = orderWordsByFrequency(wordFrequencyMap);
 
       setStatus(`saving result`);
-      await writeFileAsync(wordsFilename, JSON.stringify(words));
+
+      try {
+        await writeFileAsync(wordsPath, JSON.stringify(words));
+      } catch (e) {
+        alert(e);
+      }
 
       setStatus(`${words.length} words synced`);
     },

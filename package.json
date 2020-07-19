@@ -19,6 +19,7 @@
     "file-system": "^2.2.2",
     "glob": "^7.1.6",
     "glob-promise": "^3.4.0",
+    "home-dir": "^1.0.0",
     "node-fetch": "^2.6.0",
     "require": "^2.4.20",
     "robotjs": "https://github.com/Kyusung4698/robotjs.git"

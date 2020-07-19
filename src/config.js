@@ -3,15 +3,29 @@ const { promisify } = require('util');
 const readFileAsync = promisify(fs.readFile);
 const writeFileAsync = promisify(fs.writeFile);
 
-const configFilename = './config.json';
+const { configPath } = require('./storage');
+
+const path = configPath('config.json');
 
 const getConfig = async defaultConfig => {
-  const savedConfig = await readFileAsync(configFilename);
+  let config = defaultConfig;
 
-  const config = { ...defaultConfig, ...JSON.parse(savedConfig) };
+  try {
+    const savedConfig = await readFileAsync(path);
+
+    config = { ...defaultConfig, ...JSON.parse(savedConfig) };
+  } catch (e) {
+    if (e.code !== 'ENOENT') {
+      alert(e);
+    }
+  }
 
   const save = async () => {
-    await writeFileAsync(configFilename, JSON.stringify(config));
+    try {
+      await writeFileAsync(path, JSON.stringify(config));
+    } catch (e) {
+      alert(e);
+    }
   };
 
   const onChangeCallbacks = {};
