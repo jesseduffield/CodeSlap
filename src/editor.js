@@ -1,12 +1,8 @@
-const { ipcRenderer, remote } = require('electron');
+const { remote } = require('electron');
 const robot = require('robotjs');
 const CodeMirror = require('codemirror');
-const { newHistory } = require('./history');
-let allWords = require('./words.json');
+const { newHistory } = require('./History');
 const applescript = require('applescript');
-const { getConfig } = require('./config');
-const { setupSettings } = require('./settings');
-const { getHintWords } = require('./hintWords');
 
 const { Menu } = remote;
 const win = remote.getCurrentWindow();
@@ -17,17 +13,7 @@ const hideWindow = () => {
 require('codemirror/keymap/sublime');
 require('codemirror/addon/hint/show-hint');
 
-const run = async () => {
-  const config = await getConfig({
-    stripWhitespaceBeforePeriod: false,
-    singleLine: true,
-    frequentWordsGlob: '',
-    mode: 'ruby',
-  });
-
-  const hintWords = getHintWords();
-  hintWords.load();
-
+const setupEditor = ({ config, hintWords }) => {
   const editor = CodeMirror(document.body, {
     theme: 'monokai',
     tabSize: 2,
@@ -180,8 +166,6 @@ const run = async () => {
       }
     });
   }, 500);
-
-  setupSettings({ config, hintWords });
 };
 
-run();
+module.exports = { setupEditor };

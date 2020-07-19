@@ -3,13 +3,15 @@ const { promisify } = require('util');
 const readFileAsync = promisify(fs.readFile);
 const writeFileAsync = promisify(fs.writeFile);
 
+const configFilename = './config.json';
+
 const getConfig = async defaultConfig => {
-  const savedConfig = await readFileAsync('./config.json');
+  const savedConfig = await readFileAsync(configFilename);
 
   const config = { ...defaultConfig, ...JSON.parse(savedConfig) };
 
   const save = async () => {
-    await writeFileAsync('./config.json', JSON.stringify(config));
+    await writeFileAsync(configFilename, JSON.stringify(config));
   };
 
   const onChangeCallbacks = {};

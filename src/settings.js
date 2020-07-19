@@ -1,12 +1,7 @@
 const CodeMirror = require('codemirror');
-const { newHistory } = require('./history');
+const { newHistory } = require('./History');
 const { getConfig } = require('./config');
 const { fromPairs } = require('./utils');
-
-const fs = require('fs');
-const { promisify } = require('util');
-const readFileAsync = promisify(fs.readFile);
-const writeFileAsync = promisify(fs.writeFile);
 
 require('codemirror/mode/meta');
 

@@ -1,0 +1,19 @@
+const { getConfig } = require('./config');
+const { getHintWords } = require('./hintWords');
+const { setupSettings } = require('./settings');
+const { setupEditor } = require('./editor');
+
+(async () => {
+  const config = await getConfig({
+    stripWhitespaceBeforePeriod: false,
+    singleLine: true,
+    frequentWordsGlob: '',
+    mode: 'ruby',
+  });
+
+  const hintWords = getHintWords();
+  hintWords.load();
+
+  setupEditor({ config, hintWords });
+  setupSettings({ config, hintWords });
+})();

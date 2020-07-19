@@ -1,5 +1,6 @@
 const glob = require('glob-promise');
 const fs = require('fs');
+const { flatten } = require('./utils');
 
 const { promisify } = require('util');
 
@@ -8,10 +9,6 @@ const writeFileAsync = promisify(fs.writeFile);
 
 const minimumFrequency = 10;
 const minimumLength = 7;
-
-const flatten = arr => {
-  return [].concat(...arr);
-};
 
 const findWordsInFiles = async filenames =>
   // for each filename we're returning an array of words

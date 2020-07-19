@@ -6,7 +6,7 @@ const {
   shell,
   Menu,
 } = require('electron');
-const { createMenu } = require('./menu');
+const { createMenu } = require('./src/menu');
 
 let win = null;
 
