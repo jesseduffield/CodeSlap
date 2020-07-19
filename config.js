@@ -17,7 +17,7 @@ const getConfig = async defaultConfig => {
   const onChangeCallbacks = {};
 
   return {
-    set: async (key, value) => {
+    async set(key, value) {
       config[key] = value;
 
       if (onChangeCallbacks[key]) {
@@ -26,13 +26,16 @@ const getConfig = async defaultConfig => {
 
       await save();
     },
-    get: key => {
+
+    get(key) {
       return config[key];
     },
-    onChange: (key, callback) => {
+
+    onChange(key, callback) {
       onChangeCallbacks[key] = callback;
     },
-    apply: () => {
+
+    apply() {
       Object.entries(onChangeCallbacks).forEach(([key, callback]) => {
         callback(config[key]);
       });
