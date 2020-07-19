@@ -21,7 +21,6 @@ function onAppReady() {
   win = new BrowserWindow({
     width: 700,
     height: 400,
-    // show: false,
     frame: false,
     webPreferences: {
       nodeIntegration: true,
@@ -39,11 +38,7 @@ function onAppReady() {
   win.on('focus', () => {
     hasFocus = true;
   });
-  // CommandOrControl+Alt+P
   globalShortcut.register('Shift+Tab', () => {
-    // for some reason the user can zoom out but not in so for now we'll reinitialize this every time they invoke the popup
-
-    win.webContents.setZoomFactor(1);
     if (hasFocus) {
       hideWindow();
     } else {
@@ -55,10 +50,8 @@ function onAppReady() {
     shell.openExternal(url);
   });
   win.once('ready-to-show', () => {
-    win.webContents.setZoomFactor(1);
     win.show();
   });
-  // win.webContents.openDevTools();
 }
 app.allowRendererProcessReuse = false;
 app.once('ready', onAppReady);

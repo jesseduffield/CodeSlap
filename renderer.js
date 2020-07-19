@@ -5,6 +5,7 @@ const History = require('./history');
 let allWords = require('./words.json');
 const extractFrequentWords = require('./extractFrequentWords');
 const applescript = require('applescript');
+const { getConfig } = require('./config');
 
 const fs = require('fs');
 
@@ -33,45 +34,20 @@ modes.forEach(mode => {
   require(`codemirror/mode/${mode}/${mode}`);
 });
 
-const getConfig = async () => {
-  let defaultConfig = {
+const run = async () => {
+  const config = await getConfig({
     stripWhitespaceBeforePeriod: false,
     singleLine: true,
     frequentWordsGlob: '',
     mode: 'ruby',
-  };
-
-  const savedConfig = await readFileAsync('./config.json');
-
-  let config = { ...defaultConfig, ...JSON.parse(savedConfig) };
-
-  const save = async () => {
-    await writeFileAsync('./config.json', JSON.stringify(config));
-  };
-
-  return {
-    set: async (key, value) => {
-      config[key] = value;
-
-      await save();
-    },
-    get: key => {
-      return config[key];
-    },
-  };
-};
-
-const run = async () => {
-  const config = await getConfig();
+  });
 
   const editor = CodeMirror(document.body, {
     theme: 'monokai',
     tabSize: 2,
     lineWrapping: true,
-    mode: config.get('mode'),
     keyMap: 'sublime',
     indentWithTabs: false,
-    extraKeys: { Enter: !config.get('singleLine') },
   });
 
   editor.focus();
@@ -181,20 +157,25 @@ const run = async () => {
     modeSelect.options.add(new Option(mode, mode));
   });
 
-  applyConfig = () => {
-    singleLineCheckbox.checked = config.get('singleLine');
-    editor.setOption('extraKeys', { Enter: !config.get('singleLine') });
+  config.onChange('mode', value => {
+    modeSelect.value = value;
+    editor.setOption('mode', value);
+  });
 
-    stripWhitespaceCheckbox.checked = config.get('stripWhitespaceBeforePeriod');
+  config.onChange('singleLine', value => {
+    singleLineCheckbox.checked = value;
+    editor.setOption('extraKeys', { Enter: !value });
+  });
 
-    frequentWordsGlob.value = config.get('frequentWordsGlob');
+  config.onChange('stripWhitespaceBeforePeriod', value => {
+    stripWhitespaceCheckbox.checked = value;
+  });
 
-    const selectedMode = config.get('mode');
-    modeSelect.value = selectedMode;
-    editor.setOption('mode', selectedMode);
-  };
+  config.onChange('frequentWordsGlob', value => {
+    frequentWordsGlob.value = value;
+  });
 
-  applyConfig();
+  config.apply();
 
   editor.on('change', function() {
     const wordRange = editor.findWordAt(editor.getCursor());
@@ -232,9 +213,9 @@ const run = async () => {
   settingsButton.addEventListener('click', event => {
     event.stopPropagation();
 
-    settings.classList.toggle('settingsShow');
-    codeMirrorWrapper.classList.toggle('settingsShow');
-    targetAppLine.classList.toggle('settingsShow');
+    [settings, codeMirrorWrapper, targetAppLine].forEach(el => {
+      el.classList.toggle('settingsShow');
+    });
   });
 
   const setStatus = status => {
@@ -246,47 +227,49 @@ const run = async () => {
   syncButton.addEventListener('click', async event => {
     event.stopPropagation();
 
-    syncLoader.classList.add('syncing');
-    frequentWordsGlob.classList.add('syncing');
+    const elementsWithSyncingState = [
+      syncLoader,
+      syncButton,
+      frequentWordsGlob,
+    ];
+
+    elementsWithSyncingState.forEach(el => {
+      el.classList.add('syncing');
+    });
+
     allWords = await extractFrequentWords(frequentWordsGlob.value, setStatus);
-    frequentWordsGlob.classList.remove('syncing');
-    syncLoader.classList.remove('syncing');
+
+    elementsWithSyncingState.forEach(el => {
+      el.classList.remove('syncing');
+    });
+
     config.set('frequentWordsGlob', frequentWordsGlob.value);
   });
 
   singleLineContainer.addEventListener('click', async event => {
-    console.log('singleLineCheckbox.checked', singleLineCheckbox.checked);
     config.set('singleLine', !singleLineCheckbox.checked);
-    applyConfig(config);
   });
 
   stripWhitespaceContainer.addEventListener('click', async event => {
     config.set('stripWhitespaceBeforePeriod', !stripWhitespaceCheckbox.checked);
-    applyConfig(config);
   });
 
   modeSelect.addEventListener('change', async event => {
     config.set('mode', event.target.value);
-    applyConfig(config);
   });
 
   setInterval(() => {
+    // would be good to make this platform agnostic
     const script =
       'tell application "System Events" to get name of first application process whose frontmost is true';
 
     applescript.execString(script, (err, rtn) => {
-      let str = '';
       if (err) {
         console.warn(err);
 
-        str = `Writing to: unknown`;
+        targetAppLine.innerHTML = `Writing to: (unknown)`;
       } else {
-        str = `Writing to: ${rtn}`;
-      }
-      if (targetAppLine.innerHTML !== str) {
-        // not sure if it actually matters to reassign the same value here
-        // in terms of performance, but chrome devtools was flashing angrily at me
-        targetAppLine.innerHTML = str;
+        targetAppLine.innerHTML = `Writing to: ${rtn}`;
       }
     });
   }, 500);
