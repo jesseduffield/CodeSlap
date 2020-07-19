@@ -103,4 +103,4 @@ const createMenu = () => {
   return Menu.buildFromTemplate(template);
 };
 
-module.exports = createMenu;
+module.exports = { createMenu };
