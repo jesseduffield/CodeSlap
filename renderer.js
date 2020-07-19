@@ -1,7 +1,7 @@
 const { ipcRenderer, remote } = require('electron');
 const robot = require('robotjs');
 const CodeMirror = require('codemirror');
-const History = require('./history');
+const { newHistory } = require('./history');
 let allWords = require('./words.json');
 const extractFrequentWords = require('./extractFrequentWords');
 const applescript = require('applescript');
@@ -54,7 +54,7 @@ const run = async () => {
 
   robot.setKeyboardDelay(0);
 
-  const history = new History();
+  const history = newHistory();
 
   const submit = () => {
     const start = new Date().getTime();

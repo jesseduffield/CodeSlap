@@ -1,34 +1,34 @@
-class History {
-  constructor() {
-    this.history = [];
-    // when historyIdx === history.length we just show a blank string
-    this.index = 0;
-  }
+const newHistory = () => {
+  const history = [];
+  // when index === history.length we just show a blank string
+  let index = 0;
 
-  previous() {
-    if (this.index > 0) {
-      this.index--;
-    }
+  return {
+    previous() {
+      if (index > 0) {
+        index--;
+      }
 
-    return this.history[this.index];
-  }
+      return history[index];
+    },
 
-  next() {
-    if (this.index < this.history.length - 1) {
-      this.index++;
-      return this.history[this.index];
-    } else if (this.index === this.history.length - 1) {
-      this.index++;
-      return '';
-    }
-  }
+    next() {
+      if (index < history.length - 1) {
+        index++;
+        return history[index];
+      } else if (index === history.length - 1) {
+        index++;
+        return '';
+      }
+    },
 
-  push(value) {
-    if (value !== this.history[this.history.length - 1]) {
-      this.history.push(value);
-    }
-    this.index = this.history.length;
-  }
-}
+    push(value) {
+      if (value !== history[history.length - 1]) {
+        history.push(value);
+      }
+      index = history.length;
+    },
+  };
+};
 
-module.exports = History;
+module.exports = { newHistory };
