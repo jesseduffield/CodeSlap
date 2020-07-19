@@ -8,9 +8,7 @@ const applescript = require('applescript');
 const { getConfig } = require('./config');
 
 const fs = require('fs');
-
 const { promisify } = require('util');
-
 const readFileAsync = promisify(fs.readFile);
 const writeFileAsync = promisify(fs.writeFile);
 
@@ -25,14 +23,6 @@ require('codemirror/mode/meta');
 require('codemirror/addon/hint/show-hint');
 
 const modes = CodeMirror.modeInfo.map(info => info.mode);
-
-// this takes a bit of time to load. Perhaps we should do this asynchronously and only when the settings page is opened.
-modes.forEach(mode => {
-  if (mode === 'null') {
-    return;
-  }
-  require(`codemirror/mode/${mode}/${mode}`);
-});
 
 const run = async () => {
   const config = await getConfig({
@@ -158,6 +148,11 @@ const run = async () => {
   });
 
   config.onChange('mode', value => {
+    if (value !== 'null') {
+      // these are a little expensive to load so we're only requiring them when we need them
+      require(`codemirror/mode/${value}/${value}`);
+    }
+
     modeSelect.value = value;
     editor.setOption('mode', value);
   });
