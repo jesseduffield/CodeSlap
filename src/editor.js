@@ -133,7 +133,8 @@ const setupEditor = ({ config, hintWords }) => {
 
     const list = hintWords
       .words()
-      .filter(word => word.startsWith(currentWord) && word !== currentWord);
+      .filter(word => word.startsWith(currentWord) && word !== currentWord)
+      .slice(0, 5);
 
     if (list.length === 1 && list[0] === currentWord) {
       return;
