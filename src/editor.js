@@ -152,7 +152,7 @@ const setupEditor = ({ config, hintWords }) => {
     });
   });
 
-  setInterval(() => {
+  const pollFrontmostApp = () => {
     // would be good to make this platform agnostic
     const script =
       'tell application "System Events" to get name of first application process whose frontmost is true';
@@ -164,9 +164,12 @@ const setupEditor = ({ config, hintWords }) => {
         targetAppLine.innerHTML = `Writing to: (unknown)`;
       } else {
         targetAppLine.innerHTML = `Writing to: ${rtn}`;
+        setTimeout(pollFrontmostApp, 1000);
       }
     });
-  }, 500);
+  };
+
+  // pollFrontmostApp(); // TODO: work out why this thing is so slow in the built app
 };
 
 module.exports = { setupEditor };
