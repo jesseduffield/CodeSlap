@@ -5,7 +5,7 @@ And if the high latency of ssh connections means that you never, EVER, manage to
 
 If you're not lazy you might push to get [mosh](https://github.com/mobile-shell/mosh) installed on your workplace's servers but if you're like me: you _are_ lazy.
 
-CodeSlap lets you push commands to your terminal session from the comfort of a text editor, as if you were directly typing into the terminal itself. The editor is powered by [CodeMirror](https://github.com/codemirror/CodeMirror) meaning familiar keybindings, multi-select, and easy navigation.
+CodeSlap lets you push commands to your terminal session from the comfort of a text editor, as if you were directly typing into the terminal itself. The editor is powered by [CodeMirror](https://github.com/codemirror/CodeMirror) meaning familiar keybindings, multi-cursors, and easy navigation.
 
 ## Usage
 
@@ -56,3 +56,19 @@ Colours your syntax.
 ### Glob for hints and autocomplete
 
 If you enter a glob into this input and press `sync`, all files matching that glob will be scanned for frequent words and those words will be extracted for use in hinting.
+
+## Really Unimpressed Netizen (RUN) Q&A:
+
+> RUN: I'm unimpressed. If the point of this app is to circumvent latency issues when ssh'ing into a remote console, doesn't this just move the latency from a per-character delay to a larger delay when you try to push the command?
+>
+> CodeSlap: The main idea behind my existence is to reduce typos caused by latency. Nobody has ever made a typo due to intermittent latency that occurs _after_ the command is typed. And I think you'll find the latency upon pushing the command is unnoticeable, unless your connection is really bad. And if youre connection is really bad, typing commands directly will be even _more_ of a pain.
+>
+> RUN: But Mosh already solves this problem with optimistic rendering of keystrokes.
+>
+> CodeSlap: Mosh indeed solves the latency problem, but it requires setup both client-side and server-side. It also lacks many of my cool features like multiline editing, multi-cursors and hints.
+>
+> RUN: Well many of those things could arrive soon enough inside terminals, for example the Ruby REPL will soon have multiline support
+>
+> CodeSlap: My creator is too impatient to wait for things like that.
+>
+> RUN: I'll get you one day CodeSlap. You haven't seen the last of me.
