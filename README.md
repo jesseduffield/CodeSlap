@@ -21,6 +21,8 @@ You will need to allow CodeSlap to 'control your computer' (so that it can switc
 
 ![](https://i.imgur.com/sFbpCvi.png)
 
+If CodeSlap does not appear in the list, you can add it manually via the `+` button.
+
 ## Settings
 
 ![](https://i.imgur.com/x88QkOT.png)
