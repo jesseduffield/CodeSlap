@@ -15,7 +15,7 @@ Press `shift+tab` to toggle between CodeSlap and the application you want to pus
 
 ## Installation
 
-Currently for OSX only: you can download the zip file from the releases section. Drag the application to your applications folder.
+You can grab the zip file from the [releases](https://github.com/jesseduffield/CodeSlap/releases) page. After unzipping, drag the application into your applications folder.
 
 You will need to allow CodeSlap to 'control your computer' (so that it can switch focus and push your commands to the terminal) like so:
 
