@@ -25,7 +25,7 @@ If CodeSlap does not appear in the list, you can add it manually via the `+` but
 
 ## Settings
 
-![](https://i.imgur.com/x88QkOT.png)
+![](https://i.imgur.com/SVghlXA.png)
 
 ### Strip whitespace before period when pasting
 
