@@ -1,5 +1,8 @@
 const applescript = require('applescript');
 
+// passing in a callback here to set the innerHTML of an element is likely overkill
+// but I'm preparing for turning this back into a worker if it turns out that's
+// what we need to do, after which we'll swap out `callback` for `postMessage`
 const pollFrontmostApp = callback => {
   // would be good to make this platform agnostic
   const script =
