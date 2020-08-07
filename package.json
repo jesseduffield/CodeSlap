@@ -20,6 +20,7 @@
     "glob": "^7.1.6",
     "glob-promise": "^3.4.0",
     "home-dir": "^1.0.0",
+    "libxmljs": "^0.19.7",
     "node-fetch": "^2.6.0",
     "require": "^2.4.20",
     "robotjs": "git+https://github.com/Kyusung4698/robotjs.git"
