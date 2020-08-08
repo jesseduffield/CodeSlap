@@ -5,7 +5,7 @@ const { setupEditor } = require('./editor');
 const { setupFrontAppPoller } = require('./frontAppPoller');
 
 (async () => {
-  const config = await getConfig({
+  const config = await getConfig('config', {
     stripWhitespaceBeforePeriod: false,
     singleLine: true,
     frequentWordsGlob: '',

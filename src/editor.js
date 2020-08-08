@@ -2,6 +2,7 @@ const { remote } = require('electron');
 const robot = require('robotjs');
 const CodeMirror = require('codemirror');
 const { newHistory } = require('./History');
+const { getIterm2Client } = require('./iterm2Client');
 
 const { Menu } = remote;
 const win = remote.getCurrentWindow();
@@ -13,6 +14,17 @@ require('codemirror/keymap/sublime');
 require('codemirror/addon/hint/show-hint');
 
 const setupEditor = ({ config, hintWords }) => {
+  const connectionStatus = document.getElementById('connectionStatus');
+
+  let client = getIterm2Client(
+    () => {
+      connectionStatus.innerHTML = 'Connected to iTerm2';
+    },
+    () => {
+      connectionStatus.innerHTML = 'Disconnected from iTerm2';
+    }
+  );
+
   const editor = CodeMirror(document.body, {
     theme: 'monokai',
     tabSize: 2,
@@ -53,13 +65,16 @@ const setupEditor = ({ config, hintWords }) => {
     history.push(text);
     editor.setValue('');
 
-    hideWindow();
+    const hasItermIntegration = true;
 
-    robot.typeString(textToWrite);
-
-    robot.keyTap('enter');
-
-    win.show();
+    if (hasItermIntegration) {
+      client.write(`${textToWrite}\n`);
+    } else {
+      hideWindow();
+      robot.typeString(textToWrite);
+      robot.keyTap('enter');
+      win.show();
+    }
   };
 
   const moveCursorToEndOfLine = () => {

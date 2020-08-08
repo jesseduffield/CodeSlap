@@ -18,7 +18,7 @@ const elementIds = [
   'singleLineContainer',
   'stripWhitespaceCheckbox',
   'stripWhitespaceContainer',
-  'targetAppLine',
+  'connectionStatus',
   'modeSelect',
 ];
 
@@ -37,7 +37,7 @@ const setupSettings = ({ config, hintWords }) => {
     singleLineContainer,
     stripWhitespaceCheckbox,
     stripWhitespaceContainer,
-    targetAppLine,
+    connectionStatus,
     modeSelect,
   } = getElements();
   const codeMirrorWrapper = document.getElementsByClassName('CodeMirror')[0];
@@ -54,7 +54,7 @@ const setupSettings = ({ config, hintWords }) => {
   settingsButton.addEventListener('click', event => {
     event.stopPropagation();
 
-    [settings, codeMirrorWrapper, targetAppLine].forEach(el => {
+    [settings, codeMirrorWrapper, connectionStatus].forEach(el => {
       el.classList.toggle('settingsShow');
     });
 

@@ -8,6 +8,7 @@ const {
 } = require('electron');
 const { createMenu } = require('./src/menu');
 const { setupConfigDir } = require('./src/storage');
+const { getConfig } = require('./src/config');
 
 let win = null;
 
@@ -20,10 +21,12 @@ let hasFocus = true;
 
 setupConfigDir();
 
-function onAppReady() {
+async function onAppReady() {
+  const config = await getConfig('mainConfig', { width: 700, height: 400 });
+
   win = new BrowserWindow({
-    width: 700,
-    height: 400,
+    width: config.get('width'),
+    height: config.get('height'),
     frame: false,
     webPreferences: {
       nodeIntegration: true,
@@ -31,6 +34,12 @@ function onAppReady() {
     },
     transparent: true,
   });
+  win.on('resize', () => {
+    const size = win.getSize();
+    config.set('width', size[0]);
+    config.set('height', size[1]);
+  });
+  // win.webContents.openDevTools();
   win.loadFile('index.html');
   win.once('closed', () => {
     win = null;

@@ -11,14 +11,13 @@
   </head>
   <body>
     <img id="settingsButton" class="cog" src="./svg/cog.svg" />
-    <div id="targetAppLine"></div>
+    <div id="connectionStatus">Waiting to connect to iTerm2</div>
     <div id="settings">
       <div class="controls">
         <h1>Settings</h1>
         <div id="stripWhitespaceContainer" class="checkboxContainer">
-          <label for="stripWhitespaceCheckbox"
-            >strip whitespace before period when pasting</label
-          >
+          <label for="stripWhitespaceCheckbox">strip whitespace before period
+            when pasting</label>
           <div class="innerCheckboxContainer">
             <input id="stripWhitespaceCheckbox" type="checkbox" />
             <span class="checkmark"></span>
@@ -43,7 +42,7 @@
               type="text"
               placeholder="/Users/Me/myRepo/**/*.rb"
               spellcheck="false"
-            />
+              />
             <button id="syncButton">Sync</button>
             <div id="syncLoader"></div>
           </div>
@@ -52,17 +51,14 @@
       </div>
       <div class="footer">
         <p>
-          <a href="https://github.com/jesseduffield/CodeSlap" target="_blank"
-            >CodeSlap</a
-          >, created by Jesse Duffield
+          <a href="https://github.com/jesseduffield/CodeSlap" target="_blank">CodeSlap</a>,
+          created by Jesse Duffield
         </p>
         <a href="https://jesseduffield.com" target="_blank">My Blog</a>
         <a
           class="sponsor"
           href="https://github.com/sponsors/jesseduffield"
-          target="_blank"
-          >Sponsor Me</a
-        >
+          target="_blank">Sponsor Me</a>
       </div>
     </div>
     <script>

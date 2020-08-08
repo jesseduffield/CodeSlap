@@ -26,11 +26,11 @@ const pollFrontmostApp = callback => {
 };
 
 const setupFrontAppPoller = () => {
-  const targetAppLine = document.getElementById('targetAppLine');
+  const connectionStatus = document.getElementById('connectionStatus');
 
   // TODO: work out why this thing is so slow in the built app
   // pollFrontmostApp(message => {
-  //   targetAppLine.innerHTML = message;
+  //   connectionStatus.innerHTML = message;
   // });
 };
 

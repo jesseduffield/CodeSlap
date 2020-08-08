@@ -5,10 +5,9 @@ const writeFileAsync = promisify(fs.writeFile);
 
 const { configPath } = require('./storage');
 
-const path = configPath('config.json');
-
-const getConfig = async defaultConfig => {
+const getConfig = async (name, defaultConfig) => {
   let config = defaultConfig;
+  const path = configPath(`${name}.json`);
 
   try {
     const savedConfig = await readFileAsync(path);
