@@ -21,7 +21,7 @@
     "glob-promise": "^3.4.0",
     "home-dir": "^1.0.0",
     "net": "^1.0.2",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.1",
     "require": "^2.4.20",
     "robotjs": "git+https://github.com/Kyusung4698/robotjs.git"
   }
