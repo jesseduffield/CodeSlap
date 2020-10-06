@@ -9,7 +9,7 @@
   "author": "Jesse Duffield",
   "license": "MIT",
   "devDependencies": {
-    "electron": ">=2.0.8",
+    "electron": ">=9.3.0",
     "electron-rebuild": "^1.11.0"
   },
   "dependencies": {
