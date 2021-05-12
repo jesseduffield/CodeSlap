@@ -15,7 +15,7 @@
   "dependencies": {
     "applescript": "^1.0.0",
     "bluebird": "^3.7.2",
-    "codemirror": "^5.55.0",
+    "codemirror": "^5.58.2",
     "file-system": "^2.2.2",
     "glob": "^7.1.6",
     "glob-promise": "^3.4.0",
